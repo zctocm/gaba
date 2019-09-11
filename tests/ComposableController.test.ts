@@ -1,5 +1,6 @@
 import { stub } from 'sinon';
 import AddressBookController from '../src/user/AddressBookController';
+import EnsController from '../src/third-party/EnsController';
 import ComposableController from '../src/ComposableController';
 import PreferencesController from '../src/user/PreferencesController';
 import TokenRatesController from '../src/assets/TokenRatesController';
@@ -14,6 +15,7 @@ describe('ComposableController', () => {
 			new AddressBookController(),
 			new AssetsController(),
 			new AssetsContractController(),
+			new EnsController(),
 			new CurrencyRateController(),
 			new NetworkController(),
 			new PreferencesController(),
@@ -39,6 +41,9 @@ describe('ComposableController', () => {
 				currentCurrency: 'usd',
 				nativeCurrency: 'ETH'
 			},
+			EnsController: {
+				ensEntries: {}
+			},
 			NetworkController: {
 				network: 'loading',
 				provider: { type: 'mainnet' }
@@ -60,6 +65,7 @@ describe('ComposableController', () => {
 			new AddressBookController(),
 			new AssetsController(),
 			new AssetsContractController(),
+			new EnsController(),
 			new CurrencyRateController(),
 			new NetworkController(),
 			new PreferencesController(),
@@ -76,6 +82,7 @@ describe('ComposableController', () => {
 			conversionDate: 0,
 			conversionRate: 0,
 			currentCurrency: 'usd',
+			ensEntries: {},
 			featureFlags: {},
 			frequentRpcList: [],
 			identities: {},
@@ -98,6 +105,7 @@ describe('ComposableController', () => {
 			new AssetsController(),
 			new AssetsContractController(),
 			new CurrencyRateController(),
+			new EnsController(),
 			new NetworkController(),
 			new PreferencesController(),
 			new TokenRatesController()
@@ -108,11 +116,14 @@ describe('ComposableController', () => {
 		addressContext.set('0x32Be343B94f860124dC4fEe278FDCBD38C102D88', 'foo');
 		expect(controller.flatState).toEqual({
 			addressBook: {
-				'0x32Be343B94f860124dC4fEe278FDCBD38C102D88': {
-					address: '0x32Be343B94f860124dC4fEe278FDCBD38C102D88',
-					chainId: 1,
-					memo: '',
-					name: 'foo'
+				1: {
+					'0x32Be343B94f860124dC4fEe278FDCBD38C102D88': {
+						address: '0x32Be343B94f860124dC4fEe278FDCBD38C102D88',
+						chainId: '1',
+						isEns: false,
+						memo: '',
+						name: 'foo'
+					}
 				}
 			},
 			allCollectibleContracts: {},
@@ -124,6 +135,7 @@ describe('ComposableController', () => {
 			conversionDate: 0,
 			conversionRate: 0,
 			currentCurrency: 'usd',
+			ensEntries: {},
 			featureFlags: {},
 			frequentRpcList: [],
 			identities: {},
@@ -152,10 +164,13 @@ describe('ComposableController', () => {
 			AddressBookController: {
 				addressBook: [
 					{
-						address: 'bar',
-						chainId: 1,
-						memo: '',
-						name: 'foo'
+						1: {
+							address: 'bar',
+							chainId: '1',
+							isEns: false,
+							memo: '',
+							name: 'foo'
+						}
 					}
 				]
 			}
@@ -174,11 +189,14 @@ describe('ComposableController', () => {
 		expect(listener.getCall(0).args[0]).toEqual({
 			AddressBookController: {
 				addressBook: {
-					'0x32Be343B94f860124dC4fEe278FDCBD38C102D88': {
-						address: '0x32Be343B94f860124dC4fEe278FDCBD38C102D88',
-						chainId: 1,
-						memo: '',
-						name: 'foo'
+					1: {
+						'0x32Be343B94f860124dC4fEe278FDCBD38C102D88': {
+							address: '0x32Be343B94f860124dC4fEe278FDCBD38C102D88',
+							chainId: '1',
+							isEns: false,
+							memo: '',
+							name: 'foo'
+						}
 					}
 				}
 			}
