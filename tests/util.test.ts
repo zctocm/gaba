@@ -1,10 +1,17 @@
+import 'isomorphic-fetch';
+import * as fetchMock from 'fetch-mock';
+
 import * as util from '../src/util';
-import { mock } from 'fetch-mock';
 
 const { BN } = require('ethereumjs-util');
 const SOME_API = 'https://someapi.com';
+const SOME_FAILING_API = 'https://somefailingapi.com';
 
 describe('util', () => {
+	beforeEach(() => {
+		fetchMock.reset();
+	});
+
 	it('BNToHex', () => {
 		expect(util.BNToHex(new BN('1337'))).toBe('0x539');
 	});
@@ -171,10 +178,10 @@ describe('util', () => {
 		expect(str).toEqual('hello there');
 	});
 
-	describe('validatePersonalSignMessageData', () => {
+	describe('validateSignMessageData', () => {
 		it('should throw if no from address', () => {
 			expect(() =>
-				util.validatePersonalSignMessageData({
+				util.validateSignMessageData({
 					data: '0x879a05'
 				} as any)
 			).toThrow();
@@ -182,7 +189,7 @@ describe('util', () => {
 
 		it('should throw if invalid from address', () => {
 			expect(() =>
-				util.validatePersonalSignMessageData({
+				util.validateSignMessageData({
 					data: '0x879a05',
 					from: '3244e191f1b4903970224322180f1fbbc415696b'
 				} as any)
@@ -191,7 +198,7 @@ describe('util', () => {
 
 		it('should throw if invalid type from address', () => {
 			expect(() =>
-				util.validatePersonalSignMessageData({
+				util.validateSignMessageData({
 					data: '0x879a05',
 					from: 123
 				} as any)
@@ -200,7 +207,7 @@ describe('util', () => {
 
 		it('should throw if no data', () => {
 			expect(() =>
-				util.validatePersonalSignMessageData({
+				util.validateSignMessageData({
 					data: '0x879a05'
 				} as any)
 			).toThrow();
@@ -208,7 +215,7 @@ describe('util', () => {
 
 		it('should throw if invalid tyoe data', () => {
 			expect(() =>
-				util.validatePersonalSignMessageData({
+				util.validateSignMessageData({
 					data: 123,
 					from: '0x3244e191f1b4903970224322180f1fbbc415696b'
 				} as any)
@@ -426,15 +433,42 @@ describe('util', () => {
 		});
 	});
 
+	describe('successfulFetch', () => {
+		beforeEach(() => {
+			fetchMock
+				.mock(SOME_API, new Response(JSON.stringify({ foo: 'bar' }), { status: 200 }))
+				.mock(SOME_FAILING_API, new Response('response', { status: 500 }));
+		});
+
+		it('should return successful fetch response', async () => {
+			const res = await util.successfulFetch(SOME_API);
+			const parsed = await res.json();
+			expect(parsed).toEqual({ foo: 'bar' });
+		});
+
+		it('should throw error for an unsuccessful fetch', async () => {
+			let error;
+			try {
+				await util.successfulFetch(SOME_FAILING_API);
+			} catch (e) {
+				error = e;
+			}
+			expect(error.message).toBe(`Fetch failed with status '500' for request '${SOME_FAILING_API}'`);
+		});
+	});
+
 	describe('timeoutFetch', () => {
 		const delay = (time: number) => {
 			return new Promise((resolve) => {
 				setTimeout(resolve, time);
 			});
 		};
-		mock(SOME_API, () => {
-			return delay(300).then(() => {
-				return JSON.stringify({});
+
+		beforeEach(() => {
+			fetchMock.mock(SOME_API, () => {
+				return delay(300).then(() => {
+					return JSON.stringify({});
+				});
 			});
 		});
 

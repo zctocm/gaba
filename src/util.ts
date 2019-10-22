@@ -1,5 +1,6 @@
 import { addHexPrefix, isValidAddress, bufferToHex } from 'ethereumjs-util';
 import { Transaction } from './transaction/TransactionController';
+import { MessageParams } from './message-manager/MessageManager';
 import { PersonalMessageParams } from './message-manager/PersonalMessageManager';
 import { TypedMessageParams } from './message-manager/TypedMessageManager';
 import { Token } from './assets/TokenRatesController';
@@ -192,12 +193,12 @@ export function normalizeMessageData(data: string) {
 }
 
 /**
- * Validates a PersonalMessageParams object for required properties and throws in
+ * Validates a PersonalMessageParams and MessageParams objects for required properties and throws in
  * the event of any validation error.
  *
  * @param messageData - PersonalMessageParams object to validate
  */
-export function validatePersonalSignMessageData(messageData: PersonalMessageParams) {
+export function validateSignMessageData(messageData: PersonalMessageParams | MessageParams) {
 	if (!messageData.from || typeof messageData.from !== 'string' || !isValidAddress(messageData.from)) {
 		throw new Error(`Invalid "from" address: ${messageData.from} must be a valid string.`);
 	}
@@ -289,6 +290,21 @@ export function isSmartContractCode(code: string) {
 }
 
 /**
+ * Execute fetch and verify that the response was successful
+ *
+ * @param request - Request information
+ * @param options - Options
+ * @returns - Promise resolving to the fetch response
+ */
+export async function successfulFetch(request: string, options?: RequestInit) {
+	const response = await fetch(request, options);
+	if (!response.ok) {
+		throw new Error(`Fetch failed with status '${response.status}' for request '${request}'`);
+	}
+	return response;
+}
+
+/**
  * Execute fetch and return object response
  *
  * @param request - Request information
@@ -296,7 +312,7 @@ export function isSmartContractCode(code: string) {
  * @returns - Promise resolving to the result object of fetch
  */
 export async function handleFetch(request: string, options?: RequestInit) {
-	const response = await fetch(request, options);
+	const response = await successfulFetch(request, options);
 	const object = await response.json();
 	return object;
 }
@@ -312,7 +328,7 @@ export async function handleFetch(request: string, options?: RequestInit) {
  */
 export async function timeoutFetch(url: string, options?: RequestInit, timeout: number = 500): Promise<Response> {
 	return Promise.race([
-		fetch(url, options),
+		successfulFetch(url, options),
 		new Promise<Response>((_, reject) =>
 			setTimeout(() => {
 				reject(new Error('timeout'));
@@ -354,6 +370,7 @@ export default {
 	isSmartContractCode,
 	normalizeTransaction,
 	safelyExecute,
+	successfulFetch,
 	timeoutFetch,
 	validateTokenToWatch,
 	validateTransaction,
