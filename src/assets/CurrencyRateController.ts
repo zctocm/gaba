@@ -45,7 +45,7 @@ export class CurrencyRateController extends BaseController<CurrencyRateConfig, C
 	private handle?: NodeJS.Timer;
 
 	private getCurrentCurrencyFromState(state?: Partial<CurrencyRateState>) {
-		return (state && state.currentCurrency) ? state.currentCurrency : 'usd';
+		return state && state.currentCurrency ? state.currentCurrency : 'usd';
 	}
 
 	private getPricingURL(currentCurrency: string, nativeCurrency: string) {
@@ -72,7 +72,7 @@ export class CurrencyRateController extends BaseController<CurrencyRateConfig, C
 			currentCurrency: this.getCurrentCurrencyFromState(state),
 			disabled: true,
 			interval: 180000,
-			nativeCurrency: 'ETH'
+			nativeCurrency: 'CFX'
 		};
 		this.defaultState = {
 			conversionDate: 0,

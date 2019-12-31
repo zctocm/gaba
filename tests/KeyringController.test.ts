@@ -188,7 +188,10 @@ describe('KeyringController', () => {
 					{ name: 'to', type: 'Person' },
 					{ name: 'contents', type: 'string' }
 				],
-				Person: [{ name: 'name', type: 'string' }, { name: 'wallet', type: 'address' }]
+				Person: [
+					{ name: 'name', type: 'string' },
+					{ name: 'wallet', type: 'address' }
+				]
 			}
 		};
 		const account = initialState.keyrings[0].accounts[0];
@@ -236,13 +239,19 @@ describe('KeyringController', () => {
 					{ name: 'chainId', type: 'uint256' },
 					{ name: 'verifyingContract', type: 'address' }
 				],
-				Group: [{ name: 'name', type: 'string' }, { name: 'members', type: 'Person[]' }],
+				Group: [
+					{ name: 'name', type: 'string' },
+					{ name: 'members', type: 'Person[]' }
+				],
 				Mail: [
 					{ name: 'from', type: 'Person' },
 					{ name: 'to', type: 'Person[]' },
 					{ name: 'contents', type: 'string' }
 				],
-				Person: [{ name: 'name', type: 'string' }, { name: 'wallets', type: 'address[]' }]
+				Person: [
+					{ name: 'name', type: 'string' },
+					{ name: 'wallets', type: 'address[]' }
+				]
 			}
 		};
 

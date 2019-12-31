@@ -108,7 +108,10 @@ describe('TokenRatesController', () => {
 		const address = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359';
 		const address2 = '0xfoO';
 		expect(controller.state.contractExchangeRates).toEqual({});
-		controller.tokens = [{ address, decimals: 18, symbol: 'DAI' }, { address: address2, decimals: 0, symbol: '' }];
+		controller.tokens = [
+			{ address, decimals: 18, symbol: 'DAI' },
+			{ address: address2, decimals: 0, symbol: '' }
+		];
 		await controller.updateExchangeRates();
 		expect(Object.keys(controller.state.contractExchangeRates)).toContain(address);
 		expect(controller.state.contractExchangeRates[address]).toBeGreaterThan(0);
